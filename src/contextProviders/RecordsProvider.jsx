@@ -1,21 +1,5 @@
 import { createContext, useState } from "react";
 
-export const InputSum = createContext();
-
-export const InputSumProvider = ({ children }) => {
-  const [inputSum, setInputSum] = useState(1500);
-  return (
-    <InputSum.Provider
-      value={{
-        inputSum,
-        setInputSum
-      }}
-    >
-      {children}
-    </InputSum.Provider>
-  );
-};
-
 export const Records = createContext();
 
 export const RecordsProvider = ({ children }) => {
@@ -23,7 +7,7 @@ export const RecordsProvider = ({ children }) => {
 
   const updateRecord = (activityType, recordData) => {
     const newRecord = makeRecord(activityType, recordData);
-    setRecords([newRecord, ...records]);
+    setRecords((prev) => [newRecord, ...prev]);
   };
 
   const makeRecord = (activityType, recordData = null) => {
@@ -32,10 +16,12 @@ export const RecordsProvider = ({ children }) => {
         return `${recordData}를 구매했습니다.`;
       case "outOfStock":
         return `${recordData}의 재고가 없습니다.`;
-      case "lackOfMoney":
+      case "lackOfInputsum":
         return `투입 금액이 부족합니다.`;
       case "inputMoney":
         return `${recordData.toLocaleString()}원을 투입했습니다.`;
+      case "lackOfBalance":
+        return `지갑에 돈이 부족합니다.`;
       case "returnMoney":
         return `${recordData.toLocaleString()}원이 반환되었습니다.`;
       default:

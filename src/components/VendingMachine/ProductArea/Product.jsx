@@ -1,53 +1,35 @@
 import { useContext } from "react";
-import { InputSum, Records } from "../../../ContextProvider";
-import { activityType } from "../../../convention";
+import { Balance } from "contextProviders/BalanceProvider";
 import styled, { css } from "styled-components";
-import Button from "../../common/Button";
+import Button from "components/common/Button";
 
-const Product = ({ productInfo, stock, changeStock }) => {
-  const { inputSum, setInputSum } = useContext(InputSum);
-  const { updateRecord } = useContext(Records);
-
-  const handleClick = () => {
-    if (!stock) {
-      updateRecord(activityType.OUT_OF_STOCK, productInfo.name);
-    } else if (inputSum < productInfo.price) {
-      updateRecord(activityType.LACK_OF_MONEY);
-    } else {
-      purchaseProduct();
-      updateRecord(activityType.PURCHASE, productInfo.name);
-    }
-  };
-
-  const purchaseProduct = () => {
-    changeStock(productInfo.id, stock - 1);
-    setInputSum(inputSum - productInfo.price);
-  };
+const Product = ({ productInfo, handlePurchaseBtnClick }) => {
+  const { inputSum } = useContext(Balance);
 
   const decidePurchaseBtnStyles = () => {
-    if (!stock) {
+    if (!productInfo.stock) {
       return outOfStockButtonStyle;
     }
     if (productInfo.price > inputSum) {
-      return lackOfMoneyButtonStyle;
+      return lackOfInputsumButtonStyle;
     }
     return normalButtonStyle;
   };
 
   const decidePurchaseBtnContent = () => {
-    return stock ? productInfo.price.toLocaleString() : "Sold out";
+    return productInfo.stock ? productInfo.price.toLocaleString() : "Sold out";
   };
 
   return (
     <ProductWrapper>
-      <ProductImageWrapper stock={stock}>
+      <ProductImageWrapper stock={productInfo.stock}>
         <img src={productInfo.imgSrc} alt={productInfo.name} />
       </ProductImageWrapper>
       <ProductStand>
         <Button
           styles={decidePurchaseBtnStyles()}
           content={decidePurchaseBtnContent()}
-          onClick={handleClick}
+          onClick={() => handlePurchaseBtnClick(productInfo)}
         />
       </ProductStand>
     </ProductWrapper>
@@ -60,10 +42,15 @@ const ProductWrapper = styled.div`
 
 const ProductImageWrapper = styled.div`
   height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+
   img {
-    width: 100%;
-    height: 100%;
+    width: 80%;
+    height: 80%;
     opacity: ${({ stock }) => (stock ? "100%" : "20%")};
+    object-fit: cover;
   }
 `;
 
@@ -94,7 +81,7 @@ const outOfStockButtonStyle = css`
   background: ${({ theme }) => theme.colors.red};
 `;
 
-const lackOfMoneyButtonStyle = css`
+const lackOfInputsumButtonStyle = css`
   ${normalButtonStyle};
   opacity: 0.3;
 `;
